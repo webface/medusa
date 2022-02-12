@@ -14,23 +14,17 @@ class S3Service extends FileService {
     this.endpoint_ = options.endpoint
   }
 
-  upload(file) {
+  upload_(params, region) {
     aws.config.setPromisesDependency()
     aws.config.update({
       accessKeyId: this.accessKeyId_,
       secretAccessKey: this.secretAccessKey_,
-      region: this.region_,
+      region: region,
       endpoint: this.endpoint_,
     })
 
     const s3 = new aws.S3()
-    var params = {
-      ACL: "public-read",
-      Bucket: this.bucket_,
-      Body: fs.createReadStream(file.path),
-      Key: `${file.originalname}`,
-    }
-
+   
     return new Promise((resolve, reject) => {
       s3.upload(params, (err, data) => {
         if (err) {
@@ -41,6 +35,16 @@ class S3Service extends FileService {
         resolve({ url: data.Location })
       })
     })
+  }
+
+  upload(file){
+    var params = {
+      ACL: "public-read",
+      Bucket: this.bucket_,
+      Body: fs.createReadStream(file.path),
+      Key: `${file.originalname}`,
+    }
+   this.upload_(params, region)
   }
 
   delete(file) {
