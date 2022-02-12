@@ -44,7 +44,8 @@ class S3Service extends FileService {
       Body: fs.createReadStream(file.path),
       Key: `${file.originalname}`,
     }
-   this.upload_(params, region)
+    var region  = this.region_
+    this.upload_(params, region)
   }
 
   delete(file) {
