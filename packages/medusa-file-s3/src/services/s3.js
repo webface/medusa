@@ -11,6 +11,11 @@ class S3Service extends FileService {
     this.accessKeyId_ = options.access_key_id
     this.secretAccessKey_ = options.secret_access_key
     this.region_ = options.region
+    
+    this.bucketPrivate_ = options.bucket_private
+    this.s3UrlPrivate_ = options.s3_private_url
+    this.regionPrivate_ = options.region_private
+
     this.endpoint_ = options.endpoint
   }
 
@@ -37,32 +42,16 @@ class S3Service extends FileService {
     })
   }
 
-  upload(file){
-    var params = {
-      ACL: "public-read",
-      Bucket: this.bucket_,
-      Body: fs.createReadStream(file.path),
-      Key: `${file.originalname}`,
-    }
-    var region  = this.region_
-    this.upload_(params, region)
-  }
-
-  delete(file) {
+  delete_(params, region) {
     aws.config.setPromisesDependency()
     aws.config.update({
       accessKeyId: this.accessKeyId_,
       secretAccessKey: this.secretAccessKey_,
-      region: this.region_,
+      region: region,
       endpoint: this.endpoint_,
     })
 
     const s3 = new aws.S3()
-    var params = {
-      Bucket: this.bucket_,
-      Key: `${file}`,
-    }
-
     return new Promise((resolve, reject) => {
       s3.deleteObject(params, (err, data) => {
         if (err) {
@@ -73,6 +62,51 @@ class S3Service extends FileService {
       })
     })
   }
+
+  upload(file){
+    var params = {
+      ACL: "public-read",
+      Bucket: this.bucket_,
+      Body: fs.createReadStream(file.path),
+      Key: `${file.originalname}`,
+    }
+    var region  = this.region_
+    return this.upload_(params, region)
+  }
+
+  delete(file) {
+
+    var region  = this.region_
+    var params = {
+      Bucket: this.bucket_,
+      Key: `${file}`,
+    }
+
+    return this.delete_(params, region)
+  }
+
+  uploadPrivate(file){
+    var params = {
+      ACL: "public-read",
+      Bucket: this.bucketPrivate_,
+      Body: fs.createReadStream(file.path),
+      Key: `${file.originalname}`,
+    }
+    var region  = this.regionPrivate_
+    return this.upload_(params, region)
+  }
+
+  deletePrivate(file) {
+
+    var region  = this.regionPrivate_
+    var params = {
+      Bucket: this.bucketPrivate_,
+      Key: `${file}`,
+    }
+
+    return this.delete_(params, region)
+  }
+  
 }
 
 export default S3Service
