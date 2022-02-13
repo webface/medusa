@@ -87,7 +87,6 @@ class S3Service extends FileService {
 
   uploadPrivate(file){
     var params = {
-      ACL: "public-read",
       Bucket: this.bucketPrivate_,
       Body: fs.createReadStream(file.path),
       Key: `${file.originalname}`,
