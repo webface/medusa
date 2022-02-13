@@ -64,7 +64,7 @@ class S3Service extends FileService {
     })
   }
 
-  download_(params, region) {
+  async download_(params, region) {
     aws.config.setPromisesDependency()
     aws.config.update({
       accessKeyId: this.accessKeyId_,
