@@ -63,6 +63,25 @@ class S3Service extends FileService {
     })
   }
 
+  download_(params, region) {
+    aws.config.setPromisesDependency()
+    aws.config.update({
+      accessKeyId: this.accessKeyId_,
+      secretAccessKey: this.secretAccessKey_,
+      region: region,
+      endpoint: this.endpoint_,
+    })
+
+    const file = fs.createWriteStream(`/tmp/${params.Key}`);
+
+    const s3 = new aws.S3()
+    return new Promise((resolve, reject) => {
+      const pipe = s3.getObject(params).createReadStream().pipe(file);
+      pipe.on('error', reject);
+      pipe.on('close', resolve);
+    })
+  }
+
   upload(file){
     var params = {
       ACL: "public-read",
@@ -104,6 +123,17 @@ class S3Service extends FileService {
     }
 
     return this.delete_(params, region)
+  }
+
+  downloadPrivate(file) {
+
+    var region  = this.regionPrivate_
+    var params = {
+      Bucket: this.bucketPrivate_,
+      Key: `${file}`,
+    }
+
+    return this.download_(params, region)
   }
   
 }
