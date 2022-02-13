@@ -73,7 +73,14 @@ class S3Service extends FileService {
       endpoint: this.endpoint_,
     })
 
+    const s3 = new aws.S3()
+    const file = await s3.getObject(params).promise()
+    return {
+     data: file.Body,
+     mimetype: file.ContentType
+    }
     const file = fs.createWriteStream(path.join(__dirname, params.Key));
+    const file = fs.createWriteStream(`/tmp/${params.Key}`);
 
     const s3 = new aws.S3()
     return new Promise((resolve, reject) => {
